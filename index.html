@@ -301,14 +301,14 @@
 
             <!-- DAFTAR PESERTA -->
             <div class="form-group">
-                <label>Daftar Peserta <span class="label-desc">(maksimal 10)</span></label>
+                <label>Daftar Peserta <span class="label-desc">(maksimal 30)</span></label>
                 <div id="pesertaContainer">
                     <!-- Row 1 akan dibuat oleh JavaScript -->
                 </div>
                 <button type="button" class="btn-add" id="tambahBtn">
                     <span class="icon">+</span> Tambah Peserta
                 </button>
-                <div class="counter-info" id="counterInfo">1 / 10 peserta</div>
+                <div class="counter-info" id="counterInfo">1 / 30 peserta</div>
             </div>
 
             <!-- SUBMIT -->
@@ -319,7 +319,7 @@
 
     <script>
         (function() {
-            const MAX_PESERTA = 30; // Ubah angka ini jika ingin lebih/batas berbeda
+            const MAX_PESERTA = 30;
 
             const container = document.getElementById('pesertaContainer');
             const tambahBtn = document.getElementById('tambahBtn');
@@ -329,14 +329,14 @@
             const submitBtn = document.getElementById('submitBtn');
             const responseDiv = document.getElementById('responseMessage');
 
-            // --- FUNGSI FORMAT TANGGAL ke MM/DD/YYYY (agar sesuai contoh GET) ---
+            // --- FUNGSI FORMAT TANGGAL ke MM/DD/YYYY ---
             function formatDateToMMDDYYYY(dateString) {
                 if (!dateString) return '';
-                const parts = dateString.split('-'); // YYYY-MM-DD
+                const parts = dateString.split('-');
                 if (parts.length === 3) {
                     return `${parts[1]}/${parts[2]}/${parts[0]}`;
                 }
-                return dateString; // fallback
+                return dateString;
             }
 
             // --- BUAT ROW PESERTA BARU ---
@@ -347,7 +347,6 @@
                 const fieldsDiv = document.createElement('div');
                 fieldsDiv.className = 'row-fields';
 
-                // Input Nama
                 const namaInput = document.createElement('input');
                 namaInput.type = 'text';
                 namaInput.placeholder = 'Nama Lengkap';
@@ -355,18 +354,15 @@
                 namaInput.required = true;
                 namaInput.value = namaValue.toUpperCase();
 
-                // Event uppercase saat ketik
                 namaInput.addEventListener('input', function(e) {
                     this.value = this.value.toUpperCase();
                 });
 
-                // Input Tanggal Lahir
                 const tanggalInput = document.createElement('input');
                 tanggalInput.type = 'date';
                 tanggalInput.placeholder = 'Tanggal Lahir';
                 tanggalInput.required = true;
                 if (tanggalValue) {
-                    // Coba konversi balik jika format MM/DD/YYYY ke YYYY-MM-DD untuk input date
                     const parts = tanggalValue.split('/');
                     if (parts.length === 3) {
                         const month = parts[0].padStart(2, '0');
@@ -381,7 +377,6 @@
                 fieldsDiv.appendChild(namaInput);
                 fieldsDiv.appendChild(tanggalInput);
 
-                // Tombol Hapus
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'btn-remove';
@@ -413,7 +408,6 @@
                     tambahBtn.disabled = false;
                 }
 
-                // Sembunyikan tombol hapus jika hanya 1 row (opsional, tapi tombol tetap ada)
                 const rows = container.querySelectorAll('.peserta-row');
                 rows.forEach((row, index) => {
                     const btn = row.querySelector('.btn-remove');
@@ -440,7 +434,7 @@
                 updateCounterAndButtons();
             }
 
-            // --- INITIAL ROW (1 peserta default kosong) ---
+            // --- INITIAL ROW ---
             tambahRow();
 
             // --- EVENT TOMBOL TAMBAH ---
@@ -452,7 +446,6 @@
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                // Ambil Team
                 const team = teamInput.value.trim().toUpperCase();
                 if (!team) {
                     alert('Nama Tim wajib diisi!');
@@ -460,7 +453,6 @@
                     return;
                 }
 
-                // Ambil semua data peserta
                 const rows = container.querySelectorAll('.peserta-row');
                 const pesertaList = [];
                 let valid = true;
@@ -469,7 +461,7 @@
                     const namaInput = row.querySelector('input[type="text"]');
                     const tanggalInput = row.querySelector('input[type="date"]');
                     const nama = namaInput.value.trim().toUpperCase();
-                    const tanggal = tanggalInput.value; // YYYY-MM-DD
+                    const tanggal = tanggalInput.value;
 
                     if (!nama || !tanggal) {
                         valid = false;
@@ -478,7 +470,6 @@
                     } else {
                         namaInput.style.borderColor = '';
                         tanggalInput.style.borderColor = '';
-                        // Format tanggal ke MM/DD/YYYY agar sesuai contoh GET
                         const formattedDate = formatDateToMMDDYYYY(tanggal);
                         pesertaList.push({
                             team: team,
@@ -499,21 +490,18 @@
                 }
 
                 // --- 🔧 SESUAIKAN FORMAT PAYLOAD DI SINI ---
-                // Saat ini menggunakan Opsi A (Array di dalam key "data")
-                // Jika API Anda menerima Opsi B (team + peserta), ganti bagian ini.
                 const payload = {
                     data: pesertaList  // <-- Opsi A (default)
                 };
 
-                // Contoh Opsi B (uncomment jika pakai):
+                // Opsi B (uncomment jika pakai):
                 // const payload = {
                 //     team: team,
-                //     peserta: pesertaList.map(({ team, ...rest }) => rest) // hilangkan team dari tiap item
+                //     peserta: pesertaList.map(({ team, ...rest }) => rest)
                 // };
 
                 console.log('Payload yang dikirim:', JSON.stringify(payload, null, 2));
 
-                // --- KIRIM KE API ---
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Mengirim...';
                 responseDiv.className = 'loading';
@@ -521,58 +509,49 @@
                 responseDiv.style.display = 'block';
 
                 try {
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbyPOl8MLl5-TyVaGWf_nLTtiCVsWZgFLz2lpcN3i0yrw31UwG8GkPwN30McKPvkwc8t/exec';
+                    const apiUrl = 'https://script.google.com/macros/s/AKfycbyPOl8MLl5-TyVaGWf_nLTtiCVsWZgFLz2lpcN3i0yrw31UwG8GkPwN30McKPvkwc8t/exec';
 
-    const response = await fetch(apiUrl, {
-        method: 'POST',
-        mode: 'no-cors', // <-- PAKAI INI DULU agar tidak error
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-    });
+                    await fetch(apiUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload),
+                    });
 
-    // KARENA PAKAI NO-CORS, RESPONSE TIDAK BISA DIBACA
-    // Jadi kita anggap sukses jika tidak ada error
-    responseDiv.className = 'success';
-    responseDiv.textContent = '✅ Data berhasil dikirim! (Cek spreadsheet untuk memastikan)';
-    
-} catch (error) {
-    console.error('Error:', error);
-    responseDiv.className = 'error';
-    responseDiv.textContent = `❌ Gagal mengirim: ${error.message}`;
-} catch (error) {
+                    // Karena pakai no-cors, kita anggap sukses
+                    responseDiv.className = 'success';
+                    responseDiv.textContent = '✅ Data berhasil dikirim! Cek spreadsheet untuk memastikan.';
+                    
+                    // Optional: Reset form setelah sukses
+                    // teamInput.value = '';
+                    // container.innerHTML = '';
+                    // tambahRow();
+                    // updateCounterAndButtons();
+
+                } catch (error) {
                     console.error('Error:', error);
                     responseDiv.className = 'error';
-                    responseDiv.textContent = `❌ Terjadi kesalahan: ${error.message || 'Cek koneksi atau format API.'}`;
+                    responseDiv.textContent = `❌ Gagal mengirim: ${error.message || 'Cek koneksi atau format API.'}`;
                 } finally {
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Kirim Semua Data';
-                    // Jangan hilangkan pesan loading, biarkan terganti sukses/gagal
-                    // Jika ingin pesan hilang setelah 5 detik, tambahkan timeout
-                    setTimeout(() => {
-                        if (responseDiv.className !== 'loading') {
-                            // biarkan saja
-                        }
-                    }, 5000);
                 }
             });
 
-            // --- Validasi otomatis border saat user mengetik ---
+            // --- Validasi otomatis border ---
             container.addEventListener('input', function(e) {
                 if (e.target.tagName === 'INPUT') {
                     e.target.style.borderColor = '';
                 }
             });
 
-            // Update counter awal
             updateCounterAndButtons();
 
-            // Tambahan: Tombol Enter di input team tidak submit form langsung (biar user selesai isi)
             teamInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    // fokus ke input nama pertama
                     const firstNama = container.querySelector('input[type="text"]');
                     if (firstNama) firstNama.focus();
                 }
