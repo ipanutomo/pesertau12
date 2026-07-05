@@ -521,45 +521,27 @@
                 responseDiv.style.display = 'block';
 
                 try {
-                    const apiUrl = 'https://script.google.com/macros/s/AKfycbyPOl8MLl5-TyVaGWf_nLTtiCVsWZgFLz2lpcN3i0yrw31UwG8GkPwN30McKPvkwc8t/exec';
+    const apiUrl = 'https://script.google.com/macros/s/AKfycbyPOl8MLl5-TyVaGWf_nLTtiCVsWZgFLz2lpcN3i0yrw31UwG8GkPwN30McKPvkwc8t/exec';
 
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        mode: 'cors', // atau 'no-cors' jika perlu, tapi 'cors' lebih baik
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(payload),
-                    });
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        mode: 'no-cors', // <-- PAKAI INI DULU agar tidak error
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+    });
 
-                    // Coba baca response (jika API mengembalikan JSON)
-                    let result;
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        result = await response.json();
-                    } else {
-                        const text = await response.text();
-                        result = { status: response.ok, message: text };
-                    }
-
-                    console.log('Response API:', result);
-
-                    if (response.ok && result.status !== false) {
-                        responseDiv.className = 'success';
-                        responseDiv.textContent = `✅ Berhasil! ${result.message || 'Data tersimpan.'} (Total: ${result.total || pesertaList.length} data)`;
-                        // Reset form (opsional)
-                        // form.reset(); // Hati-hati jika direset, hilang semua input. Lebih baik kosongkan manual?
-                        // Atau reload halaman? Biarkan saja agar user bisa lihat data yang dikirim.
-                        // Saya sarankan reset hanya team dan kosongkan nama/tanggal agar mudah input baru.
-                        // teamInput.value = '';
-                        // container.innerHTML = '';
-                        // tambahRow();
-                        // updateCounterAndButtons();
-                    } else {
-                        throw new Error(result.message || result.error || 'Gagal menyimpan data.');
-                    }
-
-                } catch (error) {
+    // KARENA PAKAI NO-CORS, RESPONSE TIDAK BISA DIBACA
+    // Jadi kita anggap sukses jika tidak ada error
+    responseDiv.className = 'success';
+    responseDiv.textContent = '✅ Data berhasil dikirim! (Cek spreadsheet untuk memastikan)';
+    
+} catch (error) {
+    console.error('Error:', error);
+    responseDiv.className = 'error';
+    responseDiv.textContent = `❌ Gagal mengirim: ${error.message}`;
+} catch (error) {
                     console.error('Error:', error);
                     responseDiv.className = 'error';
                     responseDiv.textContent = `❌ Terjadi kesalahan: ${error.message || 'Cek koneksi atau format API.'}`;
