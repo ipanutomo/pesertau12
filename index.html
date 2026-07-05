@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Input Data Peserta</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 16px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            padding: 24px 20px 32px;
+            margin-top: 10px;
+        }
+
+        /* HEADER */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header img {
+            max-width: 100%;
+            height: auto;
+            max-height: 80px;
+            object-fit: contain;
+            margin-bottom: 8px;
+            border-radius: 12px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            letter-spacing: -0.3px;
+        }
+
+        .header .sub {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* FORM */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .label-desc {
+            font-size: 12px;
+            font-weight: 400;
+            color: #94a3b8;
+            margin-left: 4px;
+        }
+
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            color: #0f172a;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus {
+            border-color: #3b82f6;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        input[type="text"].uppercase-input {
+            text-transform: uppercase;
+        }
+
+        /* PESERTA ROW */
+        .peserta-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #f8fafc;
+            padding: 14px 14px 18px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #f1f5f9;
+            position: relative;
+        }
+
+        .peserta-row .row-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        /* Untuk layar lebar (opsional) */
+        @media (min-width: 480px) {
+            .peserta-row .row-fields {
+                flex-direction: row;
+                align-items: center;
+            }
+            .peserta-row .row-fields input {
+                flex: 1;
+            }
+        }
+
+        .btn-remove {
+            align-self: flex-end;
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 20px;
+            font-weight: 500;
+            padding: 4px 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s;
+            margin-top: -4px;
+        }
+
+        .btn-remove:hover {
+            background: #fee2e2;
+        }
+
+        .btn-remove:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* TOMBOL TAMBAH */
+        .btn-add {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            background: #f1f5f9;
+            border: 1.5px dashed #94a3b8;
+            border-radius: 12px;
+            color: #334155;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 4px;
+        }
+
+        .btn-add:hover {
+            background: #e2e8f0;
+            border-color: #64748b;
+        }
+
+        .btn-add:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f1f5f9;
+        }
+
+        .btn-add .icon {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        /* TOMBOL SUBMIT */
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: #3b82f6;
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        .btn-submit:hover {
+            background: #2563eb;
+        }
+
+        .btn-submit:disabled {
+            background: #94a3b8;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* RESPONSE MESSAGE */
+        #responseMessage {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+        }
+
+        #responseMessage.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        #responseMessage.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        #responseMessage.loading {
+            display: block;
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .counter-info {
+            font-size: 13px;
+            color: #64748b;
+            text-align: right;
+            margin-top: 6px;
+        }
+
+        /* HAPUS SPINNER DEFAULT INPUT DATE DI HP */
+        input[type="date"]::-webkit-inner-spin-button,
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0.6;
+        }
+
+        /* RESPONSIVE TWEAK */
+        @media (max-width: 400px) {
+            .container {
+                padding: 16px 12px;
+            }
+            input[type="text"],
+            input[type="date"] {
+                padding: 12px 14px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <!-- GANTI src="" dengan URL gambar Anda -->
+            <img src="https://via.placeholder.com/400x80/3b82f6/ffffff?text=Logo+Anda" alt="Header" id="headerImage">
+            <h1>Tambah Data Peserta</h1>
+            <div class="sub">Isi data tim dan peserta di bawah ini</div>
+        </div>
+
+        <form id="dataForm">
+            <!-- INPUT TEAM -->
+            <div class="form-group">
+                <label for="teamInput">Nama Tim / Team <span class="label-desc">(diisi sekali)</span></label>
+                <input type="text" id="teamInput" placeholder="Contoh: RT 8" required class="uppercase-input">
+            </div>
+
+            <!-- DAFTAR PESERTA -->
+            <div class="form-group">
+                <label>Daftar Peserta <span class="label-desc">(maksimal 10)</span></label>
+                <div id="pesertaContainer">
+                    <!-- Row 1 akan dibuat oleh JavaScript -->
+                </div>
+                <button type="button" class="btn-add" id="tambahBtn">
+                    <span class="icon">+</span> Tambah Peserta
+                </button>
+                <div class="counter-info" id="counterInfo">1 / 10 peserta</div>
+            </div>
+
+            <!-- SUBMIT -->
+            <button type="submit" class="btn-submit" id="submitBtn">Kirim Semua Data</button>
+            <div id="responseMessage"></div>
+        </form>
+    </div>
+
+    <script>
+        (function() {
+            const MAX_PESERTA = 30; // Ubah angka ini jika ingin lebih/batas berbeda
+
+            const container = document.getElementById('pesertaContainer');
+            const tambahBtn = document.getElementById('tambahBtn');
+            const counterInfo = document.getElementById('counterInfo');
+            const teamInput = document.getElementById('teamInput');
+            const form = document.getElementById('dataForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const responseDiv = document.getElementById('responseMessage');
+
+            // --- FUNGSI FORMAT TANGGAL ke MM/DD/YYYY (agar sesuai contoh GET) ---
+            function formatDateToMMDDYYYY(dateString) {
+                if (!dateString) return '';
+                const parts = dateString.split('-'); // YYYY-MM-DD
+                if (parts.length === 3) {
+                    return `${parts[1]}/${parts[2]}/${parts[0]}`;
+                }
+                return dateString; // fallback
+            }
+
+            // --- BUAT ROW PESERTA BARU ---
+            function createPesertaRow(namaValue = '', tanggalValue = '') {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'peserta-row';
+
+                const fieldsDiv = document.createElement('div');
+                fieldsDiv.className = 'row-fields';
+
+                // Input Nama
+                const namaInput = document.createElement('input');
+                namaInput.type = 'text';
+                namaInput.placeholder = 'Nama Lengkap';
+                namaInput.className = 'uppercase-input';
+                namaInput.required = true;
+                namaInput.value = namaValue.toUpperCase();
+
+                // Event uppercase saat ketik
+                namaInput.addEventListener('input', function(e) {
+                    this.value = this.value.toUpperCase();
+                });
+
+                // Input Tanggal Lahir
+                const tanggalInput = document.createElement('input');
+                tanggalInput.type = 'date';
+                tanggalInput.placeholder = 'Tanggal Lahir';
+                tanggalInput.required = true;
+                if (tanggalValue) {
+                    // Coba konversi balik jika format MM/DD/YYYY ke YYYY-MM-DD untuk input date
+                    const parts = tanggalValue.split('/');
+                    if (parts.length === 3) {
+                        const month = parts[0].padStart(2, '0');
+                        const day = parts[1].padStart(2, '0');
+                        const year = parts[2];
+                        tanggalInput.value = `${year}-${month}-${day}`;
+                    } else {
+                        tanggalInput.value = tanggalValue;
+                    }
+                }
+
+                fieldsDiv.appendChild(namaInput);
+                fieldsDiv.appendChild(tanggalInput);
+
+                // Tombol Hapus
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn-remove';
+                removeBtn.innerHTML = '✕';
+                removeBtn.setAttribute('aria-label', 'Hapus peserta');
+                removeBtn.addEventListener('click', function() {
+                    if (container.children.length > 1) {
+                        rowDiv.remove();
+                        updateCounterAndButtons();
+                    } else {
+                        alert('Minimal harus ada 1 peserta.');
+                    }
+                });
+
+                rowDiv.appendChild(fieldsDiv);
+                rowDiv.appendChild(removeBtn);
+
+                return rowDiv;
+            }
+
+            // --- UPDATE COUNTER & TOMBOL TAMBAH ---
+            function updateCounterAndButtons() {
+                const total = container.children.length;
+                counterInfo.textContent = `${total} / ${MAX_PESERTA} peserta`;
+
+                if (total >= MAX_PESERTA) {
+                    tambahBtn.disabled = true;
+                } else {
+                    tambahBtn.disabled = false;
+                }
+
+                // Sembunyikan tombol hapus jika hanya 1 row (opsional, tapi tombol tetap ada)
+                const rows = container.querySelectorAll('.peserta-row');
+                rows.forEach((row, index) => {
+                    const btn = row.querySelector('.btn-remove');
+                    if (btn) {
+                        if (rows.length === 1) {
+                            btn.disabled = true;
+                            btn.style.opacity = '0.3';
+                        } else {
+                            btn.disabled = false;
+                            btn.style.opacity = '1';
+                        }
+                    }
+                });
+            }
+
+            // --- TAMBAH ROW BARU ---
+            function tambahRow(nama = '', tanggal = '') {
+                if (container.children.length >= MAX_PESERTA) {
+                    alert(`Maksimal ${MAX_PESERTA} peserta.`);
+                    return;
+                }
+                const newRow = createPesertaRow(nama, tanggal);
+                container.appendChild(newRow);
+                updateCounterAndButtons();
+            }
+
+            // --- INITIAL ROW (1 peserta default kosong) ---
+            tambahRow();
+
+            // --- EVENT TOMBOL TAMBAH ---
+            tambahBtn.addEventListener('click', function() {
+                tambahRow();
+            });
+
+            // --- SUBMIT FORM ---
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // Ambil Team
+                const team = teamInput.value.trim().toUpperCase();
+                if (!team) {
+                    alert('Nama Tim wajib diisi!');
+                    teamInput.focus();
+                    return;
+                }
+
+                // Ambil semua data peserta
+                const rows = container.querySelectorAll('.peserta-row');
+                const pesertaList = [];
+                let valid = true;
+
+                rows.forEach((row) => {
+                    const namaInput = row.querySelector('input[type="text"]');
+                    const tanggalInput = row.querySelector('input[type="date"]');
+                    const nama = namaInput.value.trim().toUpperCase();
+                    const tanggal = tanggalInput.value; // YYYY-MM-DD
+
+                    if (!nama || !tanggal) {
+                        valid = false;
+                        namaInput.style.borderColor = '#ef4444';
+                        tanggalInput.style.borderColor = '#ef4444';
+                    } else {
+                        namaInput.style.borderColor = '';
+                        tanggalInput.style.borderColor = '';
+                        // Format tanggal ke MM/DD/YYYY agar sesuai contoh GET
+                        const formattedDate = formatDateToMMDDYYYY(tanggal);
+                        pesertaList.push({
+                            team: team,
+                            nama: nama,
+                            'tanggal lahir': formattedDate
+                        });
+                    }
+                });
+
+                if (!valid) {
+                    alert('Harap isi semua Nama dan Tanggal Lahir peserta!');
+                    return;
+                }
+
+                if (pesertaList.length === 0) {
+                    alert('Tidak ada data peserta yang valid.');
+                    return;
+                }
+
+                // --- 🔧 SESUAIKAN FORMAT PAYLOAD DI SINI ---
+                // Saat ini menggunakan Opsi A (Array di dalam key "data")
+                // Jika API Anda menerima Opsi B (team + peserta), ganti bagian ini.
+                const payload = {
+                    data: pesertaList  // <-- Opsi A (default)
+                };
+
+                // Contoh Opsi B (uncomment jika pakai):
+                // const payload = {
+                //     team: team,
+                //     peserta: pesertaList.map(({ team, ...rest }) => rest) // hilangkan team dari tiap item
+                // };
+
+                console.log('Payload yang dikirim:', JSON.stringify(payload, null, 2));
+
+                // --- KIRIM KE API ---
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Mengirim...';
+                responseDiv.className = 'loading';
+                responseDiv.textContent = '⏳ Sedang mengirim data...';
+                responseDiv.style.display = 'block';
+
+                try {
+                    const apiUrl = 'https://script.google.com/macros/s/AKfycbyPOl8MLl5-TyVaGWf_nLTtiCVsWZgFLz2lpcN3i0yrw31UwG8GkPwN30McKPvkwc8t/exec';
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        mode: 'cors', // atau 'no-cors' jika perlu, tapi 'cors' lebih baik
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload),
+                    });
+
+                    // Coba baca response (jika API mengembalikan JSON)
+                    let result;
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        result = await response.json();
+                    } else {
+                        const text = await response.text();
+                        result = { status: response.ok, message: text };
+                    }
+
+                    console.log('Response API:', result);
+
+                    if (response.ok && result.status !== false) {
+                        responseDiv.className = 'success';
+                        responseDiv.textContent = `✅ Berhasil! ${result.message || 'Data tersimpan.'} (Total: ${result.total || pesertaList.length} data)`;
+                        // Reset form (opsional)
+                        // form.reset(); // Hati-hati jika direset, hilang semua input. Lebih baik kosongkan manual?
+                        // Atau reload halaman? Biarkan saja agar user bisa lihat data yang dikirim.
+                        // Saya sarankan reset hanya team dan kosongkan nama/tanggal agar mudah input baru.
+                        // teamInput.value = '';
+                        // container.innerHTML = '';
+                        // tambahRow();
+                        // updateCounterAndButtons();
+                    } else {
+                        throw new Error(result.message || result.error || 'Gagal menyimpan data.');
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    responseDiv.className = 'error';
+                    responseDiv.textContent = `❌ Terjadi kesalahan: ${error.message || 'Cek koneksi atau format API.'}`;
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Kirim Semua Data';
+                    // Jangan hilangkan pesan loading, biarkan terganti sukses/gagal
+                    // Jika ingin pesan hilang setelah 5 detik, tambahkan timeout
+                    setTimeout(() => {
+                        if (responseDiv.className !== 'loading') {
+                            // biarkan saja
+                        }
+                    }, 5000);
+                }
+            });
+
+            // --- Validasi otomatis border saat user mengetik ---
+            container.addEventListener('input', function(e) {
+                if (e.target.tagName === 'INPUT') {
+                    e.target.style.borderColor = '';
+                }
+            });
+
+            // Update counter awal
+            updateCounterAndButtons();
+
+            // Tambahan: Tombol Enter di input team tidak submit form langsung (biar user selesai isi)
+            teamInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // fokus ke input nama pertama
+                    const firstNama = container.querySelector('input[type="text"]');
+                    if (firstNama) firstNama.focus();
+                }
+            });
+
+        })();
+    </script>
+
+</body>
+</html>
