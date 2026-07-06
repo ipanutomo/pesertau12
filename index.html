@@ -472,9 +472,10 @@
                         tanggalInput.style.borderColor = '';
                         const formattedDate = formatDateToMMDDYYYY(tanggal);
                         pesertaList.push({
+                            action: 'create',
                             team: team,
                             nama: nama,
-                            'tanggal lahir': formattedDate
+                            tanggal_lahir: formattedDate
                         });
                     }
                 });
@@ -489,46 +490,55 @@
                     return;
                 }
 
-                // --- 🔧 SESUAIKAN FORMAT PAYLOAD DI SINI ---
-                const payload = {
-                    data: pesertaList  // <-- Opsi A (default)
-                };
-
-                // Opsi B (uncomment jika pakai):
-                // const payload = {
-                //     team: team,
-                //     peserta: pesertaList.map(({ team, ...rest }) => rest)
-                // };
-
-                console.log('Payload yang dikirim:', JSON.stringify(payload, null, 2));
-
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Mengirim...';
                 responseDiv.className = 'loading';
                 responseDiv.textContent = '⏳ Sedang mengirim data...';
                 responseDiv.style.display = 'block';
 
+                const apiUrl = 'https://script.google.com/macros/s/AKfycbyPOl8MLl5-TyVaGWf_nLTtiCVsWZgFLz2lpcN3i0yrw31UwG8GkPwN30McKPvkwc8t/exec';
+
                 try {
-                    const apiUrl = 'https://script.google.com/macros/s/AKfycbyPOl8MLl5-TyVaGWf_nLTtiCVsWZgFLz2lpcN3i0yrw31UwG8GkPwN30McKPvkwc8t/exec';
+                    let successCount = 0;
+                    let failedNames = [];
 
-                    await fetch(apiUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(payload),
-                    });
+                    // Apps Script createData() hanya menerima 1 objek per request,
+                    // jadi kita kirim satu per satu peserta secara berurutan.
+                    for (const peserta of pesertaList) {
+                        console.log('Payload yang dikirim:', JSON.stringify(peserta, null, 2));
 
-                    // Karena pakai no-cors, kita anggap sukses
-                    responseDiv.className = 'success';
-                    responseDiv.textContent = '✅ Data berhasil dikirim! Cek spreadsheet untuk memastikan.';
-                    
-                    // Optional: Reset form setelah sukses
-                    // teamInput.value = '';
-                    // container.innerHTML = '';
-                    // tambahRow();
-                    // updateCounterAndButtons();
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            mode: 'cors',
+                            headers: {
+                                'Content-Type': 'text/plain;charset=utf-8',
+                            },
+                            body: JSON.stringify(peserta),
+                        });
+
+                        const result = await response.json();
+                        console.log('Response:', result);
+
+                        if (result.status) {
+                            successCount++;
+                        } else {
+                            failedNames.push(peserta.nama);
+                        }
+                    }
+
+                    if (failedNames.length === 0) {
+                        responseDiv.className = 'success';
+                        responseDiv.textContent = `✅ ${successCount} data peserta berhasil disimpan!`;
+
+                        // Optional: Reset form setelah sukses
+                        // teamInput.value = '';
+                        // container.innerHTML = '';
+                        // tambahRow();
+                        // updateCounterAndButtons();
+                    } else {
+                        responseDiv.className = 'error';
+                        responseDiv.textContent = `⚠️ ${successCount} berhasil, gagal untuk: ${failedNames.join(', ')}`;
+                    }
 
                 } catch (error) {
                     console.error('Error:', error);
